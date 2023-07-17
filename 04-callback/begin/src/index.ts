@@ -1,7 +1,8 @@
 import './design/index.scss';
 
-import { showFetching, showMessage } from './lib';
+import { Hero, getHeroTreeCallback, showFetching, showMessage } from './lib';
 import { replaceHeroListComponent } from './heroes.component';
+import { getDataAfterDelay } from './examples/get-ingredients';
 
 const searchEmailElement = document.getElementById(
   'search-email',
@@ -26,6 +27,9 @@ document
 function getIngredients() {
   showMessage('Ingredients for baking amazing cookies:', 'Ingredients');
 
+  getDataAfterDelay(1500, (ingredients: string[]) => {
+    ingredients.forEach((i) => showMessage(`${i}`, 'Ingredients', true));
+})
   // TODO: Get the ingredients and display them
 }
 
@@ -42,4 +46,14 @@ async function render() {
    * If it works, display them.
    * If it fails, display an error.
    */
+
+  getHeroTreeCallback(searchEmailElement.value,
+    function(hero: Hero) {
+      replaceHeroListComponent(hero);
+    }, (errorMsg: string) => {
+      console.error(errorMsg);
+      showMessage(errorMsg);
+      replaceHeroListComponent();
+    }
+  );
 }

@@ -8,6 +8,7 @@ import {
   AccountRepresentative,
 } from '../interfaces';
 import { apiUrl, parseList } from './config';
+import { error } from 'console';
 
 /**
  * TODO: Create a function that gets the hero
@@ -15,13 +16,30 @@ import { apiUrl, parseList } from './config';
  * Use callbacks for both success and error conditions.
  */
 
+export const getHeroTreeCallback = (email: string, callback: Callback<Hero>, callbackError?: CallbackError) =>
+{
+  getHeroCallback(email, (hero: Hero) => { 
+    getOrdersCallback(hero.id, (orders: Order[]) => {
+      getAccountRepCallback(hero.id, 
+        (accountRep: AccountRepresentative) => {
+          hero.orders = orders;
+          hero.accountRep = accountRep;
+          callback(hero);
+      }, 
+      error => callbackError(error));
+    }, 
+    error => callbackError(error));
+  }, 
+  error => callbackError(error));
+};
+
 const getHeroCallback = function(
   email: string,
   callback: Callback<Hero>,
   callbackError?: CallbackError,
 ) {
   axios
-    .get<Hero[]>(`${apiUrl}/heroes?email=${email}`)
+    .get<Hero[]>(`${apiUrl}/heroes?email=${email}`) // change to /heroesXXXXX?email= for error testing
     .then((response: AxiosResponse<Hero[]>) => {
       const data = parseList<Hero>(response);
       const hero = data[0];
